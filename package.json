@@ -1,0 +1,18 @@
+{
+  "name": "graphitets",
+  "version": "1.0.0",
+  "description": "Graphite issue #23 の検証プロジェクト。TypeScriptの通常型システムだけでschema graphを表現できるかを検証する",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}
