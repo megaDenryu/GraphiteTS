@@ -1,16 +1,17 @@
 // issue #23 本文の Person / Team / BelongsTo / Boss / Friends の例をそのまま実装したもの。
-import { Node } from "../src/node.js";
+// ID 型とその生成関数は org-ids.ts、schema の ID 方針宣言は org-base.ts に
+// 分けてある (この3ファイルで「Node と ID の関係」の3つの決定が揃う。
+// README.md「設計上の発見」参照)。
 import { ExactlyOneEdge, ZeroOrOneEdge, ManyEdge } from "../src/edge.js";
-import { idOf } from "../src/id.js";
-import type { Id } from "../src/id.js";
+import { OrgNodeBase } from "./org-base.js";
+import type { PersonId, TeamId, BelongsToId, BossId, FriendsId } from "./org-ids.js";
 
-export type PersonId = Id<"PersonId">;
-export type TeamId = Id<"TeamId">;
-export type BelongsToId = Id<"BelongsToId">;
-export type BossId = Id<"BossId">;
-export type FriendsId = Id<"FriendsId">;
+export type { PersonId, TeamId, BelongsToId, BossId, FriendsId } from "./org-ids.js";
+export { makePersonId, makeTeamId, makeBelongsToId, makeBossId, makeFriendsId } from "./org-ids.js";
 
-export class Person extends Node<PersonId> {
+// Person/Team はライブラリ (Node) が要求する string | number ではなく、
+// schema の方針宣言 (OrgNodeBase) が要求する branded Id を経由して束縛される。
+export class Person extends OrgNodeBase<PersonId> {
   constructor(
     id: PersonId,
     readonly name: string,
@@ -19,7 +20,7 @@ export class Person extends Node<PersonId> {
   }
 }
 
-export class Team extends Node<TeamId> {
+export class Team extends OrgNodeBase<TeamId> {
   constructor(
     id: TeamId,
     readonly name: string,
@@ -71,19 +72,3 @@ export class Friends extends ManyEdge<FriendsId, Person, Person> {
 
 export type OrgNode = Person | Team;
 export type OrgEdge = BelongsTo | Boss | Friends;
-
-export function makePersonId(value: string): PersonId {
-  return idOf<"PersonId">(value);
-}
-export function makeTeamId(value: string): TeamId {
-  return idOf<"TeamId">(value);
-}
-export function makeBelongsToId(value: string): BelongsToId {
-  return idOf<"BelongsToId">(value);
-}
-export function makeBossId(value: string): BossId {
-  return idOf<"BossId">(value);
-}
-export function makeFriendsId(value: string): FriendsId {
-  return idOf<"FriendsId">(value);
-}

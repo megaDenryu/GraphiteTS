@@ -11,6 +11,7 @@ import type { Id } from "../src/id.js";
 import type { EdgeFrom, EdgeTo, EdgePayload, TraversalResult } from "../src/traversal.js";
 import { Person, Team, BelongsTo, Boss, Friends } from "../examples/org.js";
 import type { OrgNode, OrgEdge, BossPayload } from "../examples/org.js";
+import { OrgNodeBase } from "../examples/org-base.js";
 
 // schema (OrgNode | OrgEdge) に含まれない Node/Edge
 type ProjectId = Id<"ProjectId">;
@@ -73,3 +74,33 @@ describe("createGraph の endpoint 検査 (EdgeNodes<E> extends N)", () => {
     expect(true).toBe(true);
   });
 });
+
+// Node と ID の関係は3つの決定に分かれる (README.md「設計上の発見」参照)。
+// - 決定1 (各ノードの束縛): Person が `extends OrgNodeBase<PersonId>` を書く
+//   (examples/org.ts)
+// - 決定2 (ライブラリの能力契約): Node (../src/node.ts) は ID に
+//   string | number だけを要求し、branded かどうかは問わない
+// - 決定3 (schema の ID 方針宣言): OrgNodeBase (../examples/org-base.ts) が
+//   「この schema では branded Id<Tag> を必須にする」と宣言する
+// 以下はこの3つを型レベルで裏付けるテストである。
+describe("Node と ID の関係 (決定2: ライブラリの能力契約 / 決定3: schema の ID 方針宣言)", () => {
+  it("生 string ID は Node 直接継承では合法 (branded 必須はライブラリの決定でない)", () => {
+    class RawIdNode extends Node<string> {}
+    const raw = new RawIdNode("raw-1");
+    expect(raw.id).toBe("raw-1");
+  });
+});
+
+// 決定2: オブジェクトを ID にすると Node<NodeId extends string | number> の
+// 制約に落ちる。String(id) でキー化する Graph (../src/graph.ts) がオブジェクト ID を
+// "[object Object]" へ潰して衝突する事故を、ここで型として防いでいる。
+type ObjectId = { readonly x: number };
+// @ts-expect-error オブジェクトは Node<NodeId extends string | number> の制約を満たさない
+class ObjectIdNode extends Node<ObjectId> {}
+
+// 決定3: 生 string は Node<string> としては合法 (上のテスト参照) だが、
+// OrgNodeBase<string> としては schema の方針宣言 (branded Id<Tag> 必須) に
+// 違反する。ライブラリの制約としては通る型が、schema の制約としては
+// 落ちるという対比がここに現れている。
+// @ts-expect-error OrgNodeBase<NodeId extends Id<string>> は branded でない生 string を拒否する
+class RawIdOrgNode extends OrgNodeBase<string> {}

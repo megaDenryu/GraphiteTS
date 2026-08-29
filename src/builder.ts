@@ -1,5 +1,5 @@
-import { Node } from "./node.js";
-import { Edge } from "./edge.js";
+import { AnyNode } from "./node.js";
+import { AnyEdge } from "./edge.js";
 import { EdgeNodes } from "./traversal.js";
 import { Graph } from "./graph.js";
 import { MultiplicityValidator } from "./multiplicity-validation.js";
@@ -8,8 +8,8 @@ import { MultiplicityValidator } from "./multiplicity-validation.js";
 // (endpoint 未登録・多重度違反) を許容し、freeze() で初めて検証する。
 // 検証本体は MultiplicityValidator (multiplicity-validation.ts) に委譲する。
 export class GraphBuilder<
-  N extends Node<any>,
-  E extends Edge<any, any, any, any>,
+  N extends AnyNode,
+  E extends AnyEdge,
 > {
   private readonly nodesById = new Map<string, N>();
   private readonly edgesById = new Map<string, E>();
@@ -43,8 +43,8 @@ export class GraphBuilder<
 // EdgeNodes<E> extends N が偽なら check の型が1要素の tuple になり、
 // 呼び出し側は引数無しで呼べず compile error になる。
 export function createGraph<
-  N extends Node<any>,
-  E extends Edge<any, any, any, any>,
+  N extends AnyNode,
+  E extends AnyEdge,
 >(
   ...check: EdgeNodes<E> extends N ? [] : ["Edge endpoint is not included in Node types"]
 ): GraphBuilder<N, E> {

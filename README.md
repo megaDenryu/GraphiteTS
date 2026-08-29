@@ -39,6 +39,8 @@ src/
                 freeze() が呼ぶ多重度・endpoint の検証本体 (MultiplicityValidator)
   index.ts      re-export
 examples/
+  org-ids.ts    org.ts が使う ID 型 (PersonId 等) と生成関数 (makePersonId 等)
+  org-base.ts   OrgNodeBase (この schema の ID 方針宣言。branded Id<Tag> を必須にする)
   org.ts        issue 本文の Person/Team/BelongsTo/Boss/Friends の例
   orgGraph.ts   `class OrgGraph extends Graph<OrgNode, OrgEdge> {}` の例
 tests/
@@ -80,3 +82,13 @@ tests/
   実用に足る。** 型だけで「引数を渡せなくする」ことで compile error を発生させる
   手法は、Rust の `where` 節による制約検査とは異なる仕組みだが、利用者から見た
   体験 (schema 違反が赤い波線になる) はほぼ同等だった
+- **「Node と ID の関係」は3つの決定に分かれ、TS 版はその3つに別々の
+  持ち主が要る。** (1) 各ノードの束縛 — `Person` が `extends OrgNodeBase<PersonId>`
+  と書く (`examples/org.ts`)。(2) ライブラリの能力契約 — `Node<NodeId extends
+  string | number>` (`src/node.ts`) が要求するのは「同一性のキーになれること」
+  だけであり、branded であることまでは要求しない。(3) schema の ID 方針宣言 —
+  「この schema では ID を branded `Id<Tag>` にする」という決定を
+  `OrgNodeBase<NodeId extends Id<string>>` (`examples/org-base.ts`) が1回だけ
+  宣言する。Rust 版は proc macro が schema 宣言1箇所でこの3つ全部を同時に
+  持てるのに対し、TS 版は Node の型引数制約・schema 基底クラス・各ノード
+  クラスの extends という3箇所へ分かれて、初めて全部に持ち主がつく

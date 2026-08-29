@@ -1,7 +1,7 @@
-import { Node } from "./node.js";
-import { Edge, EdgeConstructor, isExactlyOneEdgeClass, isZeroOrOneEdgeClass } from "./edge.js";
+import { AnyNode } from "./node.js";
+import { AnyEdge, EdgeConstructor, isExactlyOneEdgeClass, isZeroOrOneEdgeClass } from "./edge.js";
 
-interface EdgeGroup<E extends Edge<any, any, any, any>> {
+interface EdgeGroup<E extends AnyEdge> {
   readonly edgeClass: EdgeConstructor<E>;
   readonly fromId: string;
   readonly matches: E[];
@@ -12,8 +12,8 @@ interface EdgeGroup<E extends Edge<any, any, any, any>> {
 // 上限・下限を検査する。「多重度検証」という1つの責務を持つため、
 // mutable な組み立て (GraphBuilder) とは別の型として切り出している。
 export class MultiplicityValidator<
-  N extends Node<any>,
-  E extends Edge<any, any, any, any>,
+  N extends AnyNode,
+  E extends AnyEdge,
 > {
   private readonly groups: ReadonlyMap<string, EdgeGroup<E>>;
 

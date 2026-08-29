@@ -1,13 +1,13 @@
-import { Node } from "./node.js";
-import { Edge, EdgeConstructor, isExactlyOneEdgeClass, isZeroOrOneEdgeClass } from "./edge.js";
+import { AnyNode } from "./node.js";
+import { AnyEdge, EdgeConstructor, isExactlyOneEdgeClass, isZeroOrOneEdgeClass } from "./edge.js";
 import { TraversalResult } from "./traversal.js";
 
 // 完成した不変な Graph。GraphBuilder.freeze() が返す唯一の生成経路であり、
 // このクラスを直接 `new` することは想定していない (コンストラクタは
 // builder.ts からの呼び出し専用)。
 export class Graph<
-  N extends Node<any>,
-  E extends Edge<any, any, any, any>,
+  N extends AnyNode,
+  E extends AnyEdge,
 > {
   private readonly nodesById: ReadonlyMap<string, N>;
   private readonly edgeList: readonly E[];
